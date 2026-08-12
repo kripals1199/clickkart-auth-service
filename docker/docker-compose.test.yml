@@ -1,0 +1,19 @@
+# docker/docker-compose.test.yml
+services:
+  auth-service:
+    environment:
+      SPRING_PROFILES_ACTIVE: test
+      CONFIG_SERVER_HOST: clickkart-config-server
+      CONFIG_SERVER_USERNAME: ${CONFIG_SERVER_USERNAME:?CONFIG_SERVER_USERNAME must be set for test}
+      CONFIG_SERVER_PASSWORD: ${CONFIG_SERVER_PASSWORD:?CONFIG_SERVER_PASSWORD must be set for test}
+      AUTH_SERVICE_HOSTNAME: auth-service-test
+      AUTH_SERVICE_ADMIN_USERNAME: ${AUTH_SERVICE_ADMIN_USERNAME:?AUTH_SERVICE_ADMIN_USERNAME must be set for test}
+      AUTH_SERVICE_ADMIN_PASSWORD: ${AUTH_SERVICE_ADMIN_PASSWORD:?AUTH_SERVICE_ADMIN_PASSWORD must be set for test}
+      EUREKA_SERVER_HOST: eureka-server-test
+      EUREKA_DASHBOARD_USERNAME: ${EUREKA_DASHBOARD_USERNAME:?EUREKA_DASHBOARD_USERNAME must be set for test}
+      EUREKA_DASHBOARD_PASSWORD: ${EUREKA_DASHBOARD_PASSWORD:?EUREKA_DASHBOARD_PASSWORD must be set for test}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set for test}
+      DB_HOST: postgres-auth-test
+      DB_USERNAME: ${DB_USERNAME:?DB_USERNAME must be set for test}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD must be set for test}
+      REVOCATION_REDIS_HOST: redis-test

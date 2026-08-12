@@ -1,0 +1,57 @@
+${AnsiColor.BRIGHT_BLUE}
+#############################################################################################
+#                                                                                           #
+#    ██████╗██╗     ██╗ ██████╗██╗  ██╗██╗  ██╗ █████╗ ██████╗ ████████╗                    #
+#   ██╔════╝██║     ██║██╔════╝██║ ██╔╝██║ ██╔╝██╔══██╗██╔══██╗╚══██╔══╝                    #
+#   ██║     ██║     ██║██║     █████╔╝ █████╔╝ ███████║██████╔╝   ██║                       #
+#   ██║     ██║     ██║██║     ██╔═██╗ ██╔═██╗ ██╔══██║██╔══██╗   ██║                       #
+#   ╚██████╗███████╗██║╚██████╗██║  ██╗██║  ██╗██║  ██║██║  ██║   ██║                       #
+#    ╚═════╝╚══════╝╚═╝ ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝                       #
+#                                                                                           #
+#                              🔐  AUTHENTICATION SERVICE  🔐                               #
+#                                                                                           #
+#############################################################################################
+
+${AnsiColor.BRIGHT_GREEN}
+┌────────────────────────────── APPLICATION ─────────────────────────────────────────────────┐
+│ Name             : ${spring.application.name}                                              │
+│ Version          : ${application.version}                                                  │
+│ Environment      : ${spring.profiles.active}                                               │
+│ Server Port      : ${server.port}                                                          │
+│ Context Path     : ${server.servlet.context-path:/}                                        │
+└────────────────────────────────────────────────────────────────────────────────────────────┘
+
+${AnsiColor.BRIGHT_CYAN}
+┌────────────────────────────── PLATFORM ────────────────────────────────────────────────────┐
+│ Java Version     : ${java.version}                                                         │
+│ Spring Boot      : ${spring-boot.formatted-version}                                        │
+│ Operating System : ${os.name} ${os.version}                                                │
+│ User             : ${user.name}                                                            │
+└────────────────────────────────────────────────────────────────────────────────────────────┘
+
+${AnsiColor.BRIGHT_YELLOW}
+┌────────────────────────────── BUILD INFO ──────────────────────────────────────────────────┐
+│ Build Time       : ${build.time}                                                           │
+│ Git Branch       : ${git.branch}                                                           │
+│ Git Commit       : ${git.commit.id.abbrev}                                                 │
+└────────────────────────────────────────────────────────────────────────────────────────────┘
+
+${AnsiColor.BRIGHT_MAGENTA}
+┌────────────────────────────── SECURITY FEATURES ───────────────────────────────────────────┐
+│ ✓ JWT Authentication (Access + Refresh)                                                    │
+│ ✓ Refresh Token Rotation with Reuse Detection                                              │
+│ ✓ OTP Login (SMS / Email)                                                                  │
+│ ✓ Email and Mobile Verification                                                            │
+│ ✓ Role Based Access Control (RBAC)                                                         │
+│ ✓ Account Lockout and Rate Limiting                                                        │
+│ ✓ BCrypt Password Encoding                                                                 │
+│ ✓ Tamper-Evident Audit Trail                                                               │
+└────────────────────────────────────────────────────────────────────────────────────────────┘
+
+${AnsiColor.BRIGHT_WHITE}
+#############################################################################################
+#                     🚀 ClickKart Auth Service Started Successfully 🚀                     #
+#                     Secure • Scalable • Enterprise • Production Ready                     #
+#############################################################################################
+
+${AnsiColor.DEFAULT}

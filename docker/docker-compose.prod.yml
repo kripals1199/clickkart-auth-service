@@ -1,0 +1,23 @@
+# docker/docker-compose.prod.yml
+services:
+  auth-service:
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      CONFIG_SERVER_HOST: ${CONFIG_SERVER_HOST:?CONFIG_SERVER_HOST must be set for prod}
+      CONFIG_SERVER_USERNAME: ${CONFIG_SERVER_USERNAME:?CONFIG_SERVER_USERNAME must be set for prod}
+      CONFIG_SERVER_PASSWORD: ${CONFIG_SERVER_PASSWORD:?CONFIG_SERVER_PASSWORD must be set for prod}
+      AUTH_SERVICE_HOSTNAME: ${AUTH_SERVICE_HOSTNAME:?AUTH_SERVICE_HOSTNAME must be set for prod}
+      AUTH_SERVICE_ADMIN_USERNAME: ${AUTH_SERVICE_ADMIN_USERNAME:?AUTH_SERVICE_ADMIN_USERNAME must be set for prod}
+      AUTH_SERVICE_ADMIN_PASSWORD: ${AUTH_SERVICE_ADMIN_PASSWORD:?AUTH_SERVICE_ADMIN_PASSWORD must be set for prod}
+      EUREKA_SERVER_HOST: ${EUREKA_SERVER_HOST:?EUREKA_SERVER_HOST must be set for prod}
+      EUREKA_DASHBOARD_USERNAME: ${EUREKA_DASHBOARD_USERNAME:?EUREKA_DASHBOARD_USERNAME must be set for prod}
+      EUREKA_DASHBOARD_PASSWORD: ${EUREKA_DASHBOARD_PASSWORD:?EUREKA_DASHBOARD_PASSWORD must be set for prod}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set for prod}
+      # no fallback host: prod topology must be set deliberately, never guessed - points at a
+      # real managed PostgreSQL endpoint, never this file's bundled auth-postgres container.
+      DB_HOST: ${DB_HOST:?DB_HOST must be set for prod (managed Postgres endpoint)}
+      DB_USERNAME: ${DB_USERNAME:?DB_USERNAME must be set for prod}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD must be set for prod}
+      REVOCATION_REDIS_HOST: ${REVOCATION_REDIS_HOST:?REVOCATION_REDIS_HOST must be set for prod}
+    # secrets should be sourced from a real secrets manager (K8s Secret / Vault) at
+    # deploy time, never from a .env file committed to source control

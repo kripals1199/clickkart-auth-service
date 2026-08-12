@@ -1,0 +1,73 @@
+# docker/docker-compose.yml
+services:
+  auth-service:
+    build:
+      context: ../
+      dockerfile: Dockerfile
+    image: clickkart/auth-service:1.0.0
+    container_name: clickkart-auth-service
+    ports:
+      - "${SERVER_PORT:-8081}:${SERVER_PORT:-8081}"
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-dev}
+      SERVER_PORT: ${SERVER_PORT:-8081}
+      CONFIG_SERVER_HOST: ${CONFIG_SERVER_HOST:-config-server}
+      CONFIG_SERVER_PORT: ${CONFIG_SERVER_PORT:-8888}
+      CONFIG_SERVER_USERNAME: ${CONFIG_SERVER_USERNAME:-admin}
+      CONFIG_SERVER_PASSWORD: ${CONFIG_SERVER_PASSWORD:-dev-only-secret-change-me}
+      AUTH_SERVICE_HOSTNAME: ${AUTH_SERVICE_HOSTNAME:-localhost}
+      AUTH_SERVICE_ADMIN_USERNAME: ${AUTH_SERVICE_ADMIN_USERNAME:-admin}
+      AUTH_SERVICE_ADMIN_PASSWORD: ${AUTH_SERVICE_ADMIN_PASSWORD:-dev-only-secret-change-me}
+      EUREKA_SERVER_HOST: ${EUREKA_SERVER_HOST:-eureka-server}
+      EUREKA_SERVER_PORT: ${EUREKA_SERVER_PORT:-8761}
+      EUREKA_DASHBOARD_USERNAME: ${EUREKA_DASHBOARD_USERNAME:-admin}
+      EUREKA_DASHBOARD_PASSWORD: ${EUREKA_DASHBOARD_PASSWORD:-dev-only-secret-change-me}
+      JWT_SECRET: ${JWT_SECRET:-dev-only-secret-change-me-please-32bytes-minimum}
+      DB_HOST: ${DB_HOST:-auth-postgres}
+      DB_PORT: ${DB_PORT:-5432}
+      DB_NAME: ${DB_NAME:-clickkart_auth}
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-root}
+      REVOCATION_REDIS_HOST: ${REVOCATION_REDIS_HOST:-gateway-redis}
+      REVOCATION_REDIS_PORT: ${REVOCATION_REDIS_PORT:-6379}
+    depends_on:
+      auth-postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8081/actuator/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+    networks:
+      - clickkart-net
+
+  # Bundled for inner-loop developer convenience only (see clickkart-eureka-server's README
+  # "Design decisions" for the same convention) - never what actually deploys; staging/prod
+  # point DB_HOST at a real managed Postgres endpoint instead.
+  auth-postgres:
+    image: postgres:16-alpine
+    container_name: clickkart-auth-postgres
+    environment:
+      POSTGRES_DB: ${DB_NAME:-clickkart_auth}
+      POSTGRES_USER: ${DB_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-root}
+    ports:
+      - "${DB_EXPOSED_PORT:-5433}:5432"
+    volumes:
+      - clickkart-auth-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-postgres} -d ${DB_NAME:-clickkart_auth}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - clickkart-net
+
+networks:
+  clickkart-net:
+    external: true
+    name: clickkart-net
+
+volumes:
+  clickkart-auth-postgres-data:

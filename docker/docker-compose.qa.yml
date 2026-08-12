@@ -1,0 +1,19 @@
+# docker/docker-compose.qa.yml
+services:
+  auth-service:
+    environment:
+      SPRING_PROFILES_ACTIVE: qa
+      CONFIG_SERVER_HOST: clickkart-config-server
+      CONFIG_SERVER_USERNAME: ${CONFIG_SERVER_USERNAME:?CONFIG_SERVER_USERNAME must be set for qa}
+      CONFIG_SERVER_PASSWORD: ${CONFIG_SERVER_PASSWORD:?CONFIG_SERVER_PASSWORD must be set for qa}
+      AUTH_SERVICE_HOSTNAME: auth-service-qa
+      AUTH_SERVICE_ADMIN_USERNAME: ${AUTH_SERVICE_ADMIN_USERNAME:?AUTH_SERVICE_ADMIN_USERNAME must be set for qa}
+      AUTH_SERVICE_ADMIN_PASSWORD: ${AUTH_SERVICE_ADMIN_PASSWORD:?AUTH_SERVICE_ADMIN_PASSWORD must be set for qa}
+      EUREKA_SERVER_HOST: eureka-server-qa
+      EUREKA_DASHBOARD_USERNAME: ${EUREKA_DASHBOARD_USERNAME:?EUREKA_DASHBOARD_USERNAME must be set for qa}
+      EUREKA_DASHBOARD_PASSWORD: ${EUREKA_DASHBOARD_PASSWORD:?EUREKA_DASHBOARD_PASSWORD must be set for qa}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set for qa}
+      DB_HOST: postgres-auth-qa
+      DB_USERNAME: ${DB_USERNAME:?DB_USERNAME must be set for qa}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD must be set for qa}
+      REVOCATION_REDIS_HOST: redis-qa
