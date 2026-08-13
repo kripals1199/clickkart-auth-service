@@ -35,7 +35,7 @@ jobs:
         run: mvn -B verify
 
       - name: Publish test report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: surefire-reports
@@ -43,7 +43,7 @@ jobs:
           if-no-files-found: warn
 
       - name: Publish coverage report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: jacoco-report
