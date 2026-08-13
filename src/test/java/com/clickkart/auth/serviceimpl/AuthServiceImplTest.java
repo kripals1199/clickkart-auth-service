@@ -46,7 +46,6 @@ import com.clickkart.auth.exception.PasswordReusedException;
 import com.clickkart.auth.feign.CaptchaServiceClient;
 import com.clickkart.auth.feign.CaptchaVerificationResult;
 import com.clickkart.auth.feign.CaptchaVerifyApiResponse;
-import com.clickkart.auth.feign.NotificationServiceClient;
 import com.clickkart.auth.repository.ClickKartUserRepository;
 import com.clickkart.auth.repository.LoginAuditRepository;
 import com.clickkart.auth.repository.RoleRepository;
@@ -121,7 +120,7 @@ class AuthServiceImplTest {
     private PasswordPolicyService passwordPolicyService;
 
     @Mock
-    private NotificationServiceClient notificationServiceClient;
+    private org.springframework.context.ApplicationEventPublisher applicationEventPublisher;
 
     @Mock
     private CaptchaServiceClient captchaServiceClient;
@@ -169,8 +168,8 @@ class AuthServiceImplTest {
                 loginAuditRepository,
                 passwordResetService,
                 passwordPolicyService,
-                notificationServiceClient,
                 captchaServiceClient,
+                applicationEventPublisher,
                 authFailureRecorder,
                 otpService,
                 verificationCodeService);
@@ -374,7 +373,7 @@ class AuthServiceImplTest {
         authService.forgotPassword(
                 new ForgotPasswordRequest("nobody@example.com", "challenge-id-1", "ABC123"), REQUEST_METADATA);
 
-        verifyNoInteractions(passwordResetService, notificationServiceClient, auditTrailService);
+        verifyNoInteractions(passwordResetService, applicationEventPublisher, auditTrailService);
     }
 
     @Test
@@ -389,8 +388,11 @@ class AuthServiceImplTest {
         authService.forgotPassword(
                 new ForgotPasswordRequest("user@example.com", "challenge-id-1", "ABC123"), REQUEST_METADATA);
 
-        verify(notificationServiceClient)
-                .sendPasswordResetNotification(anyString(), argThat(req -> req.rawResetToken().equals("raw-reset-token-value")));
+        // Published, not sent inline - dispatch is bound to AFTER_COMMIT so the token is durably
+        // stored before the email carrying it leaves. See NotificationDispatchListener.
+        verify(applicationEventPublisher).publishEvent(argThat((Object e) ->
+                e instanceof com.clickkart.auth.event.PasswordResetNotificationEvent ev
+                        && ev.request().rawResetToken().equals("raw-reset-token-value")));
         verify(auditTrailService)
                 .record(anyString(), eq(clickKartUser.getPublicId()), eq(AuditAction.FORGOT_PASSWORD_REQUESTED), eq(AuditOutcome.SUCCESS), eq(REQUEST_METADATA), any());
     }
@@ -437,7 +439,7 @@ class AuthServiceImplTest {
 
         authService.requestOtp(new RequestOtpRequest("nobody@example.com", OtpChannel.SMS), REQUEST_METADATA);
 
-        verifyNoInteractions(otpService, notificationServiceClient, auditTrailService);
+        verifyNoInteractions(otpService, applicationEventPublisher, auditTrailService);
     }
 
     @Test
@@ -451,8 +453,9 @@ class AuthServiceImplTest {
 
         authService.requestOtp(new RequestOtpRequest("user@example.com", OtpChannel.SMS), REQUEST_METADATA);
 
-        verify(notificationServiceClient)
-                .sendOtp(anyString(), argThat(req -> req.rawOtp().equals("042817") && req.channel() == OtpChannel.SMS));
+        verify(applicationEventPublisher).publishEvent(argThat((Object e) ->
+                e instanceof com.clickkart.auth.event.OtpNotificationEvent ev
+                        && ev.request().rawOtp().equals("042817") && ev.request().channel() == OtpChannel.SMS));
         verify(auditTrailService)
                 .record(anyString(), eq(clickKartUser.getPublicId()), eq(AuditAction.OTP_REQUESTED), eq(AuditOutcome.SUCCESS), eq(REQUEST_METADATA), any());
     }
@@ -576,8 +579,10 @@ class AuthServiceImplTest {
         authService.requestContactVerification(
                 principal, new RequestContactVerificationRequest(OtpChannel.EMAIL), REQUEST_METADATA);
 
-        verify(notificationServiceClient)
-                .sendOtp(eq("correlation-id-1"), argThat(req -> req.rawOtp().equals("042817") && req.channel() == OtpChannel.EMAIL));
+        verify(applicationEventPublisher).publishEvent(argThat((Object e) ->
+                e instanceof com.clickkart.auth.event.OtpNotificationEvent ev
+                        && ev.correlationId().equals("correlation-id-1")
+                        && ev.request().rawOtp().equals("042817") && ev.request().channel() == OtpChannel.EMAIL));
         verify(auditTrailService)
                 .record(eq("correlation-id-1"), eq(clickKartUser.getPublicId()), eq(AuditAction.CONTACT_VERIFY_REQUESTED),
                         eq(AuditOutcome.SUCCESS), eq(REQUEST_METADATA), any());

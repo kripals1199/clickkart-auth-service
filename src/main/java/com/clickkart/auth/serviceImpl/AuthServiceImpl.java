@@ -50,8 +50,9 @@ import com.clickkart.auth.exception.InvalidCaptchaException;
 import com.clickkart.auth.exception.InvalidCurrentPasswordException;
 import com.clickkart.auth.exception.InvalidOtpException;
 import com.clickkart.auth.exception.InvalidRefreshTokenException;
+import com.clickkart.auth.event.OtpNotificationEvent;
+import com.clickkart.auth.event.PasswordResetNotificationEvent;
 import com.clickkart.auth.feign.CaptchaServiceClient;
-import com.clickkart.auth.feign.NotificationServiceClient;
 import com.clickkart.auth.feign.OtpNotificationRequest;
 import com.clickkart.auth.feign.PasswordResetNotificationRequest;
 import com.clickkart.auth.feign.VerifyCaptchaRequest;
@@ -100,8 +101,8 @@ public class AuthServiceImpl implements AuthService {
 	private final LoginAuditRepository loginAuditRepository;
 	private final PasswordResetService passwordResetService;
 	private final PasswordPolicyService passwordPolicyService;
-	private final NotificationServiceClient notificationServiceClient;
 	private final CaptchaServiceClient captchaServiceClient;
+	private final org.springframework.context.ApplicationEventPublisher applicationEventPublisher;
 	private final AuthFailureRecorder authFailureRecorder;
 	private final OtpService otpService;
 	private final VerificationCodeService verificationCodeService;
@@ -376,7 +377,10 @@ public class AuthServiceImpl implements AuthService {
 		Instant now = Instant.now();
 
 		IssuedPasswordResetToken issued = passwordResetService.issue(clickKartUser, correlationId, now);
-		notificationServiceClient.sendPasswordResetNotification(correlationId, PasswordResetNotificationRequest.of(clickKartUser.getEmail(), issued.rawValue(), issued.entity().getExpiresAt()));
+		// Published, not sent: dispatch happens after this transaction commits, so the token is
+		// durably stored before the email carrying it goes out. See NotificationDispatchListener.
+		applicationEventPublisher.publishEvent(new PasswordResetNotificationEvent(correlationId,
+				PasswordResetNotificationRequest.of(clickKartUser.getEmail(), issued.rawValue(), issued.entity().getExpiresAt())));
 
 		auditTrailService.record(correlationId, clickKartUser.getPublicId(), AuditAction.FORGOT_PASSWORD_REQUESTED,
 				AuditOutcome.SUCCESS, requestMetadata, null);
@@ -425,7 +429,7 @@ public class AuthServiceImpl implements AuthService {
 		OtpNotificationRequest notification = request.channel() == OtpChannel.SMS
 				? OtpNotificationRequest.of(OtpChannel.SMS, null, clickKartUser.getMobileNumber(), issued.rawValue(), issued.entity().getExpiresAt())
 				: OtpNotificationRequest.of(OtpChannel.EMAIL, clickKartUser.getEmail(), null, issued.rawValue(), issued.entity().getExpiresAt());
-		notificationServiceClient.sendOtp(correlationId, notification);
+		applicationEventPublisher.publishEvent(new OtpNotificationEvent(correlationId, notification));
 
 		auditTrailService.record(correlationId, clickKartUser.getPublicId(), AuditAction.OTP_REQUESTED,
 				AuditOutcome.SUCCESS, requestMetadata, "channel=" + request.channel());
@@ -500,7 +504,7 @@ public class AuthServiceImpl implements AuthService {
 		OtpNotificationRequest notification = request.channel() == OtpChannel.SMS
 				? OtpNotificationRequest.of(OtpChannel.SMS, null, clickKartUser.getMobileNumber(), issued.rawValue(), issued.entity().getExpiresAt())
 				: OtpNotificationRequest.of(OtpChannel.EMAIL, clickKartUser.getEmail(), null, issued.rawValue(), issued.entity().getExpiresAt());
-		notificationServiceClient.sendOtp(principal.correlationId(), notification);
+		applicationEventPublisher.publishEvent(new OtpNotificationEvent(principal.correlationId(), notification));
 
 		auditTrailService.record(principal.correlationId(), clickKartUser.getPublicId(), AuditAction.CONTACT_VERIFY_REQUESTED,
 				AuditOutcome.SUCCESS, requestMetadata, "channel=" + request.channel());
