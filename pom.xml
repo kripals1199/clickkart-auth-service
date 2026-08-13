@@ -22,7 +22,7 @@
     <properties>
         <java.version>21</java.version>
         <spring-cloud.version>2025.1.2</spring-cloud.version>
-        <jjwt.version>0.12.6</jjwt.version>
+        <jjwt.version>0.13.0</jjwt.version>
         <!-- Enforced floor, deliberately set just below the measured coverage at the time of writing
              (0.39) rather than an aspirational number the build never actually met. A gate that
              always fails gets bypassed and stops meaning anything; this one passes today, so any
