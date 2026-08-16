@@ -29,7 +29,7 @@ public class AccessLogFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
         log.info(
-                "\n<===\nREQUEST_START method={} uri={} remoteAddr={} correlationId={}",
+                "REQUEST_START method={} uri={} remoteAddr={} correlationId={}",
                 request.getMethod(),
                 request.getRequestURI(),
                 request.getRemoteAddr(),
@@ -41,7 +41,7 @@ public class AccessLogFilter extends OncePerRequestFilter {
         } finally {
             long durationMs = System.currentTimeMillis() - start;
             log.info(
-                    "\nREQUEST_END method={} uri={} status={} durationMs={} remoteAddr={} correlationId={}\n==>",
+                    "REQUEST_END method={} uri={} status={} durationMs={} remoteAddr={} correlationId={}",
                     request.getMethod(),
                     request.getRequestURI(),
                     response.getStatus(),
