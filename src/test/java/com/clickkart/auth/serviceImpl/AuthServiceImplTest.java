@@ -1,5 +1,5 @@
-// src/test/java/com/clickkart/auth/serviceimpl/AuthServiceImplTest.java
-package com.clickkart.auth.serviceimpl;
+// src/test/java/com/clickkart/auth/serviceImpl/AuthServiceImplTest.java
+package com.clickkart.auth.serviceImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
