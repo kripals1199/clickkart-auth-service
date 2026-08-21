@@ -304,6 +304,7 @@ public class AuthController {
 	private <T> ResponseEntity<ApiResponse<T>> envelope(int status, T data, HttpServletRequest request) {
 		String correlationId = MDC.get(MdcKeys.CORRELATION_ID);
 		ApiResponse<T> body = ApiResponse.success(status, data, request.getRequestURI(), correlationId);
+		System.out.println("bodya=> "+body);
 		return ResponseEntity.status(status).body(body);
 	}
 
